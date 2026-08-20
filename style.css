@@ -1,0 +1,22 @@
+#game-container{
+    display: flex;
+    flex-direction: row;    /*横並びにする*/
+    justify-content: center;    /*画面中央に寄せる*/
+    align-items: flex-start; /*上端で揃える*/
+    gap: 30px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(6, 60px);
+    grid-template-rows: repeat(6, 60px);
+    gap: 4px;
+}
+
+.tile {
+    width: 60px;
+    height: 60px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
