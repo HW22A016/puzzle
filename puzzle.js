@@ -11,9 +11,11 @@ class Puzzle
             '#008000',
             '#000000'
         ];
+        this.effectColor = '#9932cc';
 
         this.board = [];
         this.score = 0;
+        this.combo = 0;
         this.matchCount = matchCount;
 
         this.draggingDistance = draggingDistance;
@@ -75,14 +77,18 @@ class Puzzle
     // タイルを作成
     createTile(boardElement, r, c, colorId)
     {
+        const cell = document.createElement('div');
         const tile = document.createElement('div');
 
         // class="tile"を付与
+        // cell.classList.add('effectBackground');
         tile.classList.add('tile');
 
         // id="tile-r-c"を付与
+        cell.id = `cell-${r}-${c}`;
         tile.id = `tile-${r}-${c}`;
 
+        // cell.style.backgroundColor = '#FFFFFF';
         tile.style.backgroundColor = this.COLORS[colorId - 1];
 
         // マウス用のイベント
@@ -91,8 +97,9 @@ class Puzzle
         // タッチ操作用のイベント
         tile.addEventListener('touchstart', (e) => this.dragStart(e, r, c));
         
+        cell.appendChild(tile);
         // game-boardの子供の末尾にtileを追加
-        boardElement.appendChild(tile);
+        boardElement.appendChild(cell);
     }
 
     dragStart(e, r, c)
@@ -183,7 +190,7 @@ class Puzzle
         this.updateBoardColor();
 
         // 入れ替えた後に揃っているかをチェックする
-        this.checkMathces();
+        this.checkMatches();
     }
 
     // 盤面の色を更新する
@@ -199,53 +206,118 @@ class Puzzle
                 {
                     if(colorId === 0)
                     {
-                        tile.style.backgroundColor = 'transparent'; //透明にする
+                        // tile.style.backgroundColor = 'transparent'; //透明にする
+                        tile.style.backgroundImage = 'linear-gradient(45deg, #757575 0%, #9E9E9E 45%, #E8E8E8 70%, #9E9E9E 85%, #757575 90% 100%)';
+                        // tile.style.opacity = "0";
                     }
                     else
                     {
                         tile.style.backgroundColor = this.COLORS[colorId - 1];
+                        tile.style.backgroundImage = 'none';
+                        tile.style.opacity = "1";
                     }
                 }
             }
         }
     }
 
-    checkMathces()
+    checkMatches()
     {
-        const matched = this.findMatches();
-        const matchLen = matched.length;
+        const groups = this.splitMatches(this.findMatches());
+        const groupsLen = groups.length;
+        const finalCombo = this.combo + groupsLen;
 
         // 揃っている部分が無ければリターン
-        if(matchLen === 0)
+        if(groupsLen === 0)
         {
+            this.combo = 0;
             return;
         }
 
-        setTimeout(() => {
-            this.score += matchLen * 10;
-            this.scoreDisplay();
-
-            // 揃っていれば消去する座標に0を入れる
-            for(const id of matched)
-            {
-                this.board[id.r][id.c] = 0;
-            }
-            this.updateBoardColor();
-
+        groups.forEach(group => { 
             setTimeout(() => {
-                this.dropTiles();
-                this.generateTiles();
+                this.combo++;
+                if(this.combo <= finalCombo)
+                {
+                    this.score += group.length * 10 * this.combo;
+                }
+                this.scoreDisplay();
+
+                // 揃っていれば消去する座標に0を入れる
+                for(const id of group)
+                {
+                    this.board[id.r][id.c] = 0;
+                }
                 this.updateBoardColor();
 
-                this.checkMathces();
-            }, 300);
-        }, 500);
+                setTimeout(() => {
+                    this.dropTiles();
+                    this.generateTiles();
+                    this.updateBoardColor();
+
+                    this.checkMatches();
+                }, 100);
+            }, 500);
+        })
+
+    }
+
+    // matchedが引数になる中身は座標[r][c]とカラーが入っている
+    splitMatches(matchMap)
+    {
+        const visited = Array.from({ length: this.ROWS }, () => Array(this.COLS).fill(false));
+        const groups = [];
+
+        for(let r = 0; r < this.ROWS; r++)
+        {
+            for(let c = 0; c < this.COLS; c++)
+            {
+                // 消えるマスかつ未調査のマスなら
+                if(matchMap[r][c] && !visited[r][c])
+                {
+                    const group = [];
+                    const queue = [{ r, c }];
+                    visited[r][c] = true;
+
+                    const targetColorId = this.board[r][c];
+
+                    // 隣り合う消えるマスを探す
+                    while(0 < queue.length)
+                    {
+                        // 今から見るマスをリストの先頭から値を取り出す
+                        const curr = queue.shift();
+                        // グループのスタートを挿入
+                        group.push(curr);
+
+                        // 上下左右をチェック
+                        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                        for(const [dr, dc] of directions)
+                        {
+                            const nr = curr.r + dr;
+                            const nc = curr.c + dc;
+
+                            // 盤面の範囲内かチェック
+                            if(0 <= nr && nr < this.ROWS && 0 <= nc && nc < this.COLS)
+                            {
+                                // 消えるマスかつ未調査のマスなら
+                                if(matchMap[nr][nc] && !visited[nr][nc] && targetColorId === this.board[nr][nc])
+                                {
+                                    visited[nr][nc] = true;
+                                    queue.push({ r: nr, c: nc });
+                                }
+                            }
+                        }
+                    }
+                    groups.push(group);
+                }
+            }
+        }
+        return groups;
     }
 
     // 揃っている部分があるか判定
     findMatches()
     {
-        const matched = [];
         const matchMap = Array.from({ length: this.ROWS }, () => Array(this.COLS).fill(false));
 
         // 横が揃っているか判定
@@ -297,19 +369,7 @@ class Puzzle
                 }
             }
         }
-
-        for(let r = 0; r < this.ROWS; r++)
-        {
-            for(let c = 0; c < this.COLS; c++)
-            {
-                if(matchMap[r][c])
-                {
-                    matched.push({r: r, c: c});
-                }
-            }
-        }
-
-        return matched;
+        return matchMap;
     }
 
     // 消えた分下に落とす
