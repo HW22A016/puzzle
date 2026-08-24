@@ -56,7 +56,7 @@ class Puzzle
         return Math.floor(Math.random() * this.COLORS.length) + 1
     }
 
-    // 初期配置で揃わないようにする
+    // 初期配置色がで揃わないようにする関数
     createNotMatchColors(r, c)
     {
         let colorId;
@@ -181,12 +181,6 @@ class Puzzle
         this.board[r1][c1] = this.board[r2][c2];
         this.board[r2][c2] = tempId;
 
-        // const tile1 = document.getElementById(`tile-${r1}-${c1}`);
-        // const tile2 = document.getElementById(`tile-${r2}-${c2}`);
-
-        // tile1.style.backgroundColor = this.COLORS[this.board[r1][c1] - 1];
-        // tile2.style.backgroundColor = this.COLORS[this.board[r2][c2] - 1];
-
         this.updateBoardColor();
 
         // 入れ替えた後に揃っているかをチェックする
@@ -206,15 +200,18 @@ class Puzzle
                 {
                     if(colorId === 0)
                     {
-                        // tile.style.backgroundColor = 'transparent'; //透明にする
                         tile.style.backgroundImage = 'linear-gradient(45deg, #757575 0%, #9E9E9E 45%, #E8E8E8 70%, #9E9E9E 85%, #757575 90% 100%)';
+                        setTimeout(() => {
+                            tile.style.backgroundImage = 'none';
+                            tile.style.backgroundColor = 'transparent'; //透明にする
                         // tile.style.opacity = "0";
+                        }, 100);
                     }
                     else
                     {
                         tile.style.backgroundColor = this.COLORS[colorId - 1];
                         tile.style.backgroundImage = 'none';
-                        tile.style.opacity = "1";
+                        // tile.style.opacity = "1";
                     }
                 }
             }
@@ -236,14 +233,16 @@ class Puzzle
 
         groups.forEach(group => { 
             setTimeout(() => {
+                // スコア加算
                 this.combo++;
+                this.comboDisplay();
                 if(this.combo <= finalCombo)
                 {
                     this.score += group.length * 10 * this.combo;
                 }
                 this.scoreDisplay();
 
-                // 揃っていれば消去する座標に0を入れる
+                // 揃っていれば消去する座標に0を入れる　
                 for(const id of group)
                 {
                     this.board[id.r][id.c] = 0;
@@ -254,10 +253,9 @@ class Puzzle
                     this.dropTiles();
                     this.generateTiles();
                     this.updateBoardColor();
-
                     this.checkMatches();
-                }, 100);
-            }, 500);
+                }, 300);
+            }, 300);
         })
 
     }
@@ -416,6 +414,15 @@ class Puzzle
         if(score)
         {
             scoreElement.textContent = this.score;
+        }
+    }
+
+    comboDisplay()
+    {
+        const comboElement = document.getElementById("combo");
+        if(combo)
+        {
+            comboElement.textContent = this.combo;
         }
     }
 }
