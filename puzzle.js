@@ -427,8 +427,8 @@ class Puzzle
     }
 }
 
-window.onload = () =>
-{
-    const puzzle = new Puzzle(6, 6, 30, 3);
-    puzzle.init();
-};
+// window.onload = () =>
+// {
+//     const puzzle = new Puzzle(6, 6, 30, 3);
+//     puzzle.init();
+// };

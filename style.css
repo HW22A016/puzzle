@@ -1,3 +1,17 @@
+#title-area{
+    text-align: center;
+}
+
+#title-area h1{
+    font-size: 40px;
+    margin-top: 0;
+}
+
+#title-area button{
+    padding: auto;
+    font-size: 24px;
+}
+
 #game-container{
     display: flex;
     flex-direction: row;    /*横並びにする*/
@@ -19,4 +33,9 @@
     border-radius: 50px;
     cursor: pointer;
     transition: transform 0.1s ease;
+}
+
+/* 画面を非表示 */
+.hidden {
+    display: none !important;
 }
