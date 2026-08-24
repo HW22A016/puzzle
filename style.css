@@ -20,6 +20,13 @@
     gap: 30px;
 }
 
+@media (max-width: 550px) {
+    #game-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
 #game-board {
     display: grid;
     grid-template-columns: repeat(6, 60px);
@@ -27,10 +34,22 @@
     gap: 4px;
 }
 
+#menu-area {
+    padding-top: 100px;
+    text-align: center;
+}
+
+#menu-area button {
+    padding: auto;
+    margin: auto 30px;
+    font-size: 24px;
+}
+
 .tile {
     width: 60px;
     height: 60px;
     border-radius: 50px;
+    /* transform: rotate(45deg); */
     cursor: pointer;
     transition: transform 0.1s ease;
 }

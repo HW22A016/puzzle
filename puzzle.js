@@ -31,6 +31,8 @@ class Puzzle
     init()
     {
         const boardElement = document.getElementById('game-board');
+        this.scoreDisplay();
+        this.comboDisplay();
 
         for(let r = 0; r < this.ROWS; r++)
         {
