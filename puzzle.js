@@ -14,17 +14,26 @@ class Puzzle
         this.effectColor = '#9932cc';
 
         this.board = [];
+        
         this.targetScore = targetScore;
         this.score = 0;
         this.combo = 0;
+
         this.matchCount = matchCount;
 
+        // カウントダウンの変数
         this.setTime = 100;
         this.timer = 100;
         this.timerInterval = null;
 
+        // コンボの猶予時間のカウントダウン
+        this.comboGreceTime = 2;
+        this.comboTimer = 0;
+
+        this.isSwap = true;
         this.isGameActive = true;
 
+        // スライド判定のpx数
         this.draggingDistance = draggingDistance;
 
         this.startTile = null; // クリックしたタイル情報を保存
@@ -192,7 +201,7 @@ class Puzzle
     // 場所の入れ替え
     swapTiles(r1, c1, r2, c2)
     {
-        if(!this.isGameActive)
+        if(!this.isGameActive || !this.isSwap)
         {
             return;
         }
@@ -223,14 +232,12 @@ class Puzzle
                         setTimeout(() => {
                             tile.style.backgroundImage = 'none';
                             tile.style.backgroundColor = 'transparent'; //透明にする
-                        // tile.style.opacity = "0";
                         }, 100);
                     }
                     else
                     {
                         tile.style.backgroundColor = this.COLORS[colorId - 1];
                         tile.style.backgroundImage = 'none';
-                        // tile.style.opacity = "1";
                     }
                 }
             }
@@ -246,12 +253,16 @@ class Puzzle
         // 揃っている部分が無ければリターン
         if(groupsLen === 0)
         {
-            this.combo = 0;
+            this.isSwap = true;
+            this.comboTimer = this.timer - this.comboGreceTime;
             return;
         }
 
+        this.isSwap = false;
+
         groups.forEach(group => { 
             setTimeout(() => {
+                this.comboTimer = this.timer - this.comboGreceTime;
                 // スコア加算
                 this.combo++;
                 this.comboDisplay();
@@ -281,7 +292,7 @@ class Puzzle
                 }, 300);
             }, 300);
         })
-
+        this.comboTimer = this.timer - this.comboGreceTime;
     }
 
     // matchedが引数になる中身は座標[r][c]とカラーが入っている
@@ -464,6 +475,11 @@ class Puzzle
         this.timerInterval = setInterval(() => {
             this.timer--;
             timerElement.textContent = this.timer;
+            if(this.timer <= this.comboTimer)
+            {
+                this.combo = 0;
+                this.comboDisplay();
+            }
             if(this.timer <= 0)
             {
                 // カウントダウンを止める
