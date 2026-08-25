@@ -30,12 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     retryButton.addEventListener('click', () => {
         gameBoard.innerHTML = '';
 
+        clearInterval(puzzle.timerInterval);
+
         puzzleInit();
     });
 
     function puzzleInit()
     {
-        puzzle = new Puzzle(6, 6, 30, 3, 3000);
+        puzzle = new Puzzle(6, 6, 30, 3, 3000, 100);
         puzzle.init();
     }
 });

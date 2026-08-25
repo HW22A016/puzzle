@@ -1,6 +1,6 @@
 class Puzzle
 {
-    constructor(rows = 6, cols = 6, draggingDistance, matchCount, targetScore)
+    constructor(rows = 6, cols = 6, draggingDistance, matchCount, targetScore, timeLimit)
     {
         this.ROWS = rows;   //行　縦
         this.COLS = cols;   //列　横
@@ -22,7 +22,7 @@ class Puzzle
         this.matchCount = matchCount;
 
         // カウントダウンの変数
-        this.setTime = 100;
+        this.timeLimit = timeLimit;
         this.timer = 100;
         this.timerInterval = null;
 
@@ -253,6 +253,7 @@ class Puzzle
         // 揃っている部分が無ければリターン
         if(groupsLen === 0)
         {
+            this.jugeGameClear();
             this.isSwap = true;
             this.comboTimer = this.timer - this.comboGreceTime;
             return;
@@ -443,6 +444,27 @@ class Puzzle
         }
     }
 
+    jugeGameClear()
+    {
+        if(this.targetScore <= this.score)
+        {
+            const gameClear = document.getElementById('game-clear');   
+            gameClear.classList.remove('hidden');
+        }
+    }
+
+    jugeTimeOver()
+    {
+        if(this.timer <= 0)
+        {
+            // カウントダウンを止める
+            clearInterval(this.timerInterval);
+            this.isGameActive = false;
+            const timeOver = document.getElementById('time-over');   
+            timeOver.classList.remove('hidden');
+        }
+    }
+
     scoreDisplay()
     {
         const scoreElement = document.getElementById("score");
@@ -464,10 +486,7 @@ class Puzzle
     // 制限時間をカウントダウン
     timerCount()
     {
-        // 二重対策
-        clearInterval(this.timerInterval);
-
-        this.timer = this.setTime;
+        this.timer = this.timeLimit;
         const timerElement = document.getElementById("timer");
         timerElement.textContent = this.timer;
 
@@ -475,17 +494,18 @@ class Puzzle
         this.timerInterval = setInterval(() => {
             this.timer--;
             timerElement.textContent = this.timer;
-            if(this.timer <= this.comboTimer)
-            {
-                this.combo = 0;
-                this.comboDisplay();
-            }
-            if(this.timer <= 0)
-            {
-                // カウントダウンを止める
-                clearInterval(this.timerInterval);
-                this.isGameActive = false;
-            }
+            this.hasComboTime();
+            this.jugeTimeOver();
         }, 1000);
+    }
+
+    // コンボ猶予時間判定(猶予時間を超えたらコンボ数を0に戻す)
+    hasComboTime()
+    {
+        if(this.timer <= this.comboTimer)
+        {
+            this.combo = 0;
+            this.comboDisplay();
+        }
     }
 }

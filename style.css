@@ -34,8 +34,25 @@
     gap: 4px;
 }
 
+#result {
+    text-align: center;
+    font-size: 32px;
+}
+
+#result h1{
+    margin-bottom: 0;
+}
+
+#time-over {
+    color:red;
+}
+
+#game-clear {
+    color: lawngreen;
+}
+
 #menu-area {
-    padding-top: 100px;
+    padding-top: 50px;
     text-align: center;
 }
 
