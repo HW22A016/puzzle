@@ -27,7 +27,7 @@ class Puzzle
         this.timerInterval = null;
 
         // コンボの猶予時間のカウントダウン
-        this.comboGreceTime = 2;
+        this.comboGraceTime = 2;
         this.comboTimer = 0;
 
         this.isSwap = true;
@@ -255,7 +255,7 @@ class Puzzle
         {
             this.jugeGameClear();
             this.isSwap = true;
-            this.comboTimer = this.timer - this.comboGreceTime;
+            this.comboTimer = this.timer - this.comboGraceTime;
             return;
         }
 
@@ -263,7 +263,7 @@ class Puzzle
 
         groups.forEach(group => { 
             setTimeout(() => {
-                this.comboTimer = this.timer - this.comboGreceTime;
+                this.comboTimer = this.timer - this.comboGraceTime;
                 // スコア加算
                 this.combo++;
                 this.comboDisplay();
@@ -293,7 +293,7 @@ class Puzzle
                 }, 300);
             }, 300);
         })
-        this.comboTimer = this.timer - this.comboGreceTime;
+        this.comboTimer = this.timer - this.comboGraceTime;
     }
 
     // matchedが引数になる中身は座標[r][c]とカラーが入っている
