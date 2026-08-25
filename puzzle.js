@@ -1,6 +1,6 @@
 class Puzzle
 {
-    constructor(rows = 6, cols = 6, draggingDistance, matchCount)
+    constructor(rows = 6, cols = 6, draggingDistance, matchCount, targetScore)
     {
         this.ROWS = rows;   //行　縦
         this.COLS = cols;   //列　横
@@ -14,9 +14,14 @@ class Puzzle
         this.effectColor = '#9932cc';
 
         this.board = [];
+        this.targetScore = targetScore;
         this.score = 0;
         this.combo = 0;
         this.matchCount = matchCount;
+
+        this.setTime = 100;
+        this.timer = 100;
+        this.timerInterval = null;
 
         this.isGameActive = true;
 
@@ -33,6 +38,10 @@ class Puzzle
     init()
     {
         const boardElement = document.getElementById('game-board');
+
+        const targetScoreElement = document.getElementById("target-score");
+        targetScoreElement.textContent = this.targetScore;
+        
         this.scoreDisplay();
         this.comboDisplay();
 
@@ -47,6 +56,7 @@ class Puzzle
                 this.createTile(boardElement, r, c, colorId);
             }
         }
+        this.timerCount();
 
         window.addEventListener('mousemove', (e) => this.dragMove(e));
         window.addEventListener('touchmove', (e) => this.dragMove(e), {passive: false});
@@ -250,6 +260,11 @@ class Puzzle
                     this.score += group.length * 10 * this.combo;
                 }
                 this.scoreDisplay();
+                if(this.targetScore <= this.score)
+                {
+                    this.isGameActive = false;
+                    clearInterval(this.timerInterval);
+                }
 
                 // 揃っていれば消去する座標に0を入れる　
                 for(const id of group)
@@ -435,14 +450,26 @@ class Puzzle
         }
     }
 
-    endGame()
+    // 制限時間をカウントダウン
+    timerCount()
     {
-        this.isGameActive = false;
+        // 二重対策
+        clearInterval(this.timerInterval);
+
+        this.timer = this.setTime;
+        const timerElement = document.getElementById("timer");
+        timerElement.textContent = this.timer;
+
+        // 1秒ごとにカウントダウン
+        this.timerInterval = setInterval(() => {
+            this.timer--;
+            timerElement.textContent = this.timer;
+            if(this.timer <= 0)
+            {
+                // カウントダウンを止める
+                clearInterval(this.timerInterval);
+                this.isGameActive = false;
+            }
+        }, 1000);
     }
 }
-
-// window.onload = () =>
-// {
-//     const puzzle = new Puzzle(6, 6, 30, 3);
-//     puzzle.init();
-// };
