@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.getElementById('game-container');
     // const timerElement = document.getElementById("timer");
     const gameBoard = document.getElementById('game-board');
+    const timeOver = document.getElementById('time-over');   
+    const gameClear = document.getElementById('game-clear');   
     const menuArea = document.getElementById('menu-area');
     const titleButton = document.getElementById('title-button');
     const retryButton = document.getElementById('retry-button');
@@ -31,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
         gameBoard.innerHTML = '';
 
         clearInterval(puzzle.timerInterval);
+
+        timeOver.classList.add('hidden');
+        gameClear.classList.add('hidden');
 
         puzzleInit();
     });
