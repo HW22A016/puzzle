@@ -18,6 +18,8 @@ class Puzzle
         this.combo = 0;
         this.matchCount = matchCount;
 
+        this.isGameActive = true;
+
         this.draggingDistance = draggingDistance;
 
         this.startTile = null; // クリックしたタイル情報を保存
@@ -79,7 +81,7 @@ class Puzzle
     // タイルを作成
     createTile(boardElement, r, c, colorId)
     {
-        const cell = document.createElement('div');
+        // const cell = document.createElement('div');
         const tile = document.createElement('div');
 
         // class="tile"を付与
@@ -87,7 +89,7 @@ class Puzzle
         tile.classList.add('tile');
 
         // id="tile-r-c"を付与
-        cell.id = `cell-${r}-${c}`;
+        // cell.id = `cell-${r}-${c}`;
         tile.id = `tile-${r}-${c}`;
 
         // cell.style.backgroundColor = '#FFFFFF';
@@ -99,9 +101,10 @@ class Puzzle
         // タッチ操作用のイベント
         tile.addEventListener('touchstart', (e) => this.dragStart(e, r, c));
         
-        cell.appendChild(tile);
+        // cell.appendChild(tile);
         // game-boardの子供の末尾にtileを追加
-        boardElement.appendChild(cell);
+        // boardElement.appendChild(cell);
+        boardElement.appendChild(tile);
     }
 
     dragStart(e, r, c)
@@ -179,6 +182,10 @@ class Puzzle
     // 場所の入れ替え
     swapTiles(r1, c1, r2, c2)
     {
+        if(!this.isGameActive)
+        {
+            return;
+        }
         const tempId = this.board[r1][c1];
         this.board[r1][c1] = this.board[r2][c2];
         this.board[r2][c2] = tempId;
@@ -426,6 +433,11 @@ class Puzzle
         {
             comboElement.textContent = this.combo;
         }
+    }
+
+    endGame()
+    {
+        this.isGameActive = false;
     }
 }
 

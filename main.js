@@ -2,10 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const titleArea = document.getElementById('title-area');
     const gameContainer = document.getElementById('game-container');
+    const timerElement = document.getElementById("timer");
     const gameBoard = document.getElementById('game-board');
     const menuArea = document.getElementById('menu-area');
     const titleButton = document.getElementById('title-button');
     const retryButton = document.getElementById('retry-button');
+
+    let puzzle = null;
+    let setTime = 10;
+    let timer = 100;
+    let timerInterval = null;
 
     startButton.addEventListener('click', () => {
         titleArea.classList.add('hidden');
@@ -14,8 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         gameBoard.innerHTML = '';
 
-        const puzzle = new Puzzle(6, 6, 30, 3);
+        puzzle = new Puzzle(6, 6, 30, 3);
         puzzle.init();
+        timerCount();
     });
 
     titleButton.addEventListener('click', () => {
@@ -28,7 +35,25 @@ document.addEventListener('DOMContentLoaded', () => {
     retryButton.addEventListener('click', () => {
         gameBoard.innerHTML = '';
 
-        const puzzle = new Puzzle(6, 6, 30, 3);
+        puzzle = new Puzzle(6, 6, 30, 3);
         puzzle.init();
+        timerCount();
     });
+
+    function timerCount()
+    {
+        timer = setTime;
+        timerElement.textContent = timer;
+
+        timerInterval = setInterval(() => {
+            timer--;
+            timerElement.textContent = timer;
+            if(timer <= 0)
+            {
+                // カウントダウンを止める
+                clearInterval(timerInterval);
+                puzzle.endGame();
+            }
+        }, 1000);
+    }
 });
