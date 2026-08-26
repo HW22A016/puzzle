@@ -1,3 +1,5 @@
+import ModelController from './ModelController.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const titleArea = document.getElementById('title-area');
@@ -11,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const retryButton = document.getElementById('retry-button');
 
     let puzzle = null;
+    let modelController = null;
 
     startButton.addEventListener('click', () => {
         titleArea.classList.add('hidden');
@@ -20,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gameBoard.innerHTML = '';
 
         puzzleInit();
+
+        modelController = new ModelController('model-area', './glb/stage.glb')
+
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 50);
     });
 
     titleButton.addEventListener('click', () => {

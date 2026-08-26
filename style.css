@@ -27,12 +27,22 @@
     }
 }
 
+#ui-area h2{
+    margin: 0px 0px;
+}
+
 #game-board {
     display: grid;
     grid-template-columns: repeat(6, 60px);
     grid-template-rows: repeat(6, 60px);
     gap: 4px;
     touch-action: none;
+}
+
+#model-area {
+    width: 200px;
+    height: 200px;
+    background-color: blue;
 }
 
 #result {
