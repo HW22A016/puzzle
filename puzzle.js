@@ -472,6 +472,9 @@ class Puzzle
         {
             scoreElement.textContent = this.score;
         }
+
+        const event = new CustomEvent('sendScore', { detail: {score:this.score}})
+        window.dispatchEvent(event);
     }
 
     comboDisplay()
