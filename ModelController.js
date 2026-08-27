@@ -71,7 +71,9 @@ export default class ModelController
     findMesh(model)
     {
         let mesh = null;
+        // モデルの子供を走査する。
         model.traverse((child) => {
+            // オブジェクトかつシェイプキーを持っているか(シェイプキーを持っているとThree.jsがmorphTargetInfluences配列を自動的に作る)
             if(child.isMesh && child.morphTargetInfluences)
             {
                 console.log(`本物のメッシュを発見: ${child.name}`);
@@ -82,11 +84,21 @@ export default class ModelController
     }
 
     // シェイプキーを動かす関数
-    shapeKeysControlls(mesh, i)
+    shapeKeysControlls(mesh, index)
     {
+        // meshの中身が空ではないかつシェイプキーを持っていれば
         if(mesh && mesh.morphTargetInfluences)
         {    
-            mesh.morphTargetInfluences[i] = 1.0;
+            // シェイプキーをリセット
+            for(let i = 0; i < mesh.morphTargetInfluences.length; i++)
+            {
+                mesh.morphTargetInfluences[i] = 0;
+            }
+            
+            if(mesh.morphTargetInfluences[index] !== undefined)
+            {
+                mesh.morphTargetInfluences[index] = 1.0;
+            }
         }
         else
         {
