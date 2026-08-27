@@ -14,21 +14,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let puzzle = null;
     let modelController = null;
+    const rows = 6;
+    const cols = 6;
+    const draggingDistance = 30;
+    const matchCount = 3
+    const targetScore = 3000
+    const timeLimit = 100;
 
     startButton.addEventListener('click', () => {
-        titleArea.classList.add('hidden');
-        gameContainer.classList.remove('hidden');
-        menuArea.classList.remove('hidden');
-        
-        gameBoard.innerHTML = '';
+        modelController = new ModelController('model-area', './glb/stage.glb', () => {
 
-        puzzleInit();
+            titleArea.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            menuArea.classList.remove('hidden');
+            
+            gameBoard.innerHTML = '';
 
-        modelController = new ModelController('model-area', './glb/stage.glb')
+            puzzleInit();
 
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 50);
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 50);
+        });
     });
 
     titleButton.addEventListener('click', () => {
@@ -51,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function puzzleInit()
     {
-        puzzle = new Puzzle(6, 6, 30, 3, 3000, 100);
+        puzzle = new Puzzle(rows, cols, draggingDistance, matchCount, targetScore, timeLimit);
         puzzle.init();
     }
 });

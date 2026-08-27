@@ -42,7 +42,7 @@
 #model-area {
     width: 200px;
     height: 200px;
-    background-color: blue;
+    /* background-color: blue; */
 }
 
 #result {

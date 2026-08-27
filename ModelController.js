@@ -4,12 +4,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export default class ModelController
 {
-    constructor(elementId, modelPath = './glb/stage.glb')
+    constructor(elementId, modelPath = './glb/stage.glb', onLoaded = null)
     {
         this.modelAreaElement = document.getElementById(elementId);
-        this.width = this.modelAreaElement.clientWidth || 400;
-        this.height = this.modelAreaElement.clientHeight || 400;
+        this.width = this.modelAreaElement.clientWidth;
+        this.height = this.modelAreaElement.clientHeight;
         this.modelPath = modelPath;
+
+        this.onLoaded = onLoaded;
 
         this.initScene();
         this.initCamera();
@@ -65,6 +67,33 @@ export default class ModelController
         this.scene.add(this.directionalLight);
     }
 
+    // シェイプキーがついているmeshを探す関数
+    findMesh(model)
+    {
+        let mesh = null;
+        model.traverse((child) => {
+            if(child.isMesh && child.morphTargetInfluences)
+            {
+                console.log(`本物のメッシュを発見: ${child.name}`);
+                mesh = child;
+            }
+        });
+        return mesh;
+    }
+
+    // シェイプキーを動かす関数
+    shapeKeysControlls(mesh, i)
+    {
+        if(mesh && mesh.morphTargetInfluences)
+        {    
+            mesh.morphTargetInfluences[i] = 1.0;
+        }
+        else
+        {
+            console.warn("対象のオブジェクトにシェイプキーが見つかりません。");
+        }
+    }
+
     loadModel()
     {
         const loader = new GLTFLoader();
@@ -73,9 +102,18 @@ export default class ModelController
             this.model = gltf.scene;
             this.scene.add(this.model);
             console.log('モデルが読み込まれました.');
+
+            this.basket = this.findMesh(this.model);
+
+            this.shapeKeysControlls(this.basket, 0);
         }, undefined, (error) => {
             console.error('モデルの読み込み中にエラーが発生しました:', error);
         });
+
+        if(this.onLoaded)
+        {
+            this.onLoaded();
+        }
     }
     
     // 定期的に画面を更新するループ処理 (必須)
@@ -93,8 +131,8 @@ export default class ModelController
     bindEvents()
     {
         window.addEventListener('resize', () => {
-            const newWidth = this.modelAreaElement.clientWidth || window.innerWidth;
-            const newHeight = this.modelAreaElement.clientHeight || window.innerHeight;
+            const newWidth = this.modelAreaElement.clientWidth;
+            const newHeight = this.modelAreaElement.clientHeight;
 
             this.camera.aspect = newWidth / newHeight;
             this.camera.updateProjectionMatrix();

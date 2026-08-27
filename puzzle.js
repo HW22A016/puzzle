@@ -508,4 +508,9 @@ class Puzzle
             this.comboDisplay();
         }
     }
+
+    getScore()
+    {
+        return this.score;
+    }
 }
