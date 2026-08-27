@@ -4,11 +4,15 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export default class ModelController
 {
-    constructor(elementId, modelPath = './glb/stage.glb', onLoaded = null)
+    constructor(elementId, modelPath = './glb/stage.glb', targetScore, onLoaded = null)
     {
         this.modelAreaElement = document.getElementById(elementId);
         this.width = this.modelAreaElement.clientWidth;
         this.height = this.modelAreaElement.clientHeight;
+
+        this.targetScore = targetScore;
+        this.partScore = null;
+
         this.modelPath = modelPath;
 
         this.onLoaded = onLoaded;
@@ -23,6 +27,7 @@ export default class ModelController
 
         this.bindEvents();
         this.animate();
+        this.customEventListener();
     }
 
     initScene()
@@ -83,12 +88,20 @@ export default class ModelController
         return mesh;
     }
 
+    showShapeKeyName(mesh)
+    {
+        const keys = Object.keys(mesh.morphTargetDictionary);
+
+        console.log("シェイプキー一覧:", keys);
+    }
+
     // シェイプキーを動かす関数
-    shapeKeysControlls(mesh, index)
+    shapeKeysController(mesh, index)
     {
         // meshの中身が空ではないかつシェイプキーを持っていれば
         if(mesh && mesh.morphTargetInfluences)
         {    
+            console.log(mesh.morphTargetInfluences.length)
             // シェイプキーをリセット
             for(let i = 0; i < mesh.morphTargetInfluences.length; i++)
             {
@@ -116,8 +129,10 @@ export default class ModelController
             console.log('モデルが読み込まれました.');
 
             this.basket = this.findMesh(this.model);
+            this.shapeKeysController(this.basket, 0);
+            this.showShapeKeyName(this.basket);
 
-            this.shapeKeysControlls(this.basket, 0);
+            this.splitScore(this.basket);
         }, undefined, (error) => {
             console.error('モデルの読み込み中にエラーが発生しました:', error);
         });
@@ -149,6 +164,21 @@ export default class ModelController
             this.camera.aspect = newWidth / newHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(newWidth, newHeight);
+        });
+    }
+
+    // りんごが増える地点のスコアを計算
+    splitScore(mesh)
+    {
+        this.partScore = this.targetScore / (mesh.morphTargetInfluences.length - 1);
+    }
+
+    customEventListener()
+    {
+        window.addEventListener('sendScore', (customEvent) => {
+            const score = customEvent.detail.score;
+            // スコアでりんごが増えるかどうか計算
+            this.shapeKeysController(this.basket, Math.floor(score / this.partScore));
         });
     }
 }

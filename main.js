@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeLimit = 100;
 
     startButton.addEventListener('click', () => {
-        modelController = new ModelController('model-area', './glb/stage.glb', () => {
+        modelController = new ModelController('model-area', './glb/stage.glb',targetScore, () => {
 
             titleArea.classList.add('hidden');
             gameContainer.classList.remove('hidden');
