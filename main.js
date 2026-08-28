@@ -21,22 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetScore = 3000
     const timeLimit = 100;
 
+    modelController = new ModelController('model-area', './glb/stage.glb',targetScore);
     startButton.addEventListener('click', () => {
-        modelController = new ModelController('model-area', './glb/stage.glb',targetScore, () => {
+        titleArea.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        menuArea.classList.remove('hidden');
+        
+        gameBoard.innerHTML = '';
 
-            titleArea.classList.add('hidden');
-            gameContainer.classList.remove('hidden');
-            menuArea.classList.remove('hidden');
-            
-            gameBoard.innerHTML = '';
+        puzzleInit();
 
-            puzzleInit();
-
-            setTimeout(() => {
-                window.dispatchEvent(new Event('resize'));
-            }, 50);
-        });
-
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 50);
         customEventListener();
     });
 
