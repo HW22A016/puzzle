@@ -51,8 +51,8 @@ class Puzzle
         const targetScoreElement = document.getElementById("target-score");
         targetScoreElement.textContent = this.targetScore;
         
-        this.scoreDisplay();
-        this.comboDisplay();
+        this.sendScore();
+        this.sendCombo();
 
         for(let r = 0; r < this.ROWS; r++)
         {
@@ -266,12 +266,12 @@ class Puzzle
                 this.comboTimer = this.timer - this.comboGraceTime;
                 // スコア加算
                 this.combo++;
-                this.comboDisplay();
+                this.sendCombo();
                 if(this.combo <= finalCombo)
                 {
                     this.score += group.length * 10 * this.combo;
                 }
-                this.scoreDisplay();
+                this.sendScore();
                 if(this.targetScore <= this.score)
                 {
                     this.isGameActive = false;
@@ -465,25 +465,16 @@ class Puzzle
         }
     }
 
-    scoreDisplay()
+    sendScore()
     {
-        const scoreElement = document.getElementById("score");
-        if(score)
-        {
-            scoreElement.textContent = this.score;
-        }
-
         const event = new CustomEvent('sendScore', { detail: {score:this.score}})
         window.dispatchEvent(event);
     }
 
-    comboDisplay()
+    sendCombo()
     {
-        const comboElement = document.getElementById("combo");
-        if(combo)
-        {
-            comboElement.textContent = this.combo;
-        }
+        const event = new CustomEvent('sendCombo', { detail: {combo:this.combo}})
+        window.dispatchEvent(event);
     }
 
     // 制限時間をカウントダウン
@@ -508,12 +499,7 @@ class Puzzle
         if(this.timer <= this.comboTimer)
         {
             this.combo = 0;
-            this.comboDisplay();
+            this.sendCombo();
         }
-    }
-
-    getScore()
-    {
-        return this.score;
     }
 }

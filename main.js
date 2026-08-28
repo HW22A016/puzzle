@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.dispatchEvent(new Event('resize'));
             }, 50);
         });
+
+        customEventListener();
     });
 
     titleButton.addEventListener('click', () => {
@@ -60,5 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
     {
         puzzle = new Puzzle(rows, cols, draggingDistance, matchCount, targetScore, timeLimit);
         puzzle.init();
+    }
+
+    function customEventListener()
+    {
+        window.addEventListener('sendScore', (customEvent) => {
+            const score = customEvent.detail.score;
+            const scoreElement = document.getElementById("score");
+            scoreElement.textContent = score;
+        });
+
+        window.addEventListener('sendCombo', (customEvent) => {
+            const combo = customEvent.detail.combo;
+            const comboElement = document.getElementById("combo");
+            comboElement.textContent = combo;
+        });
     }
 });
