@@ -40,6 +40,8 @@ class Puzzle
         this.startX = 0;
         this.startY = 0;
         this.isDragging = false;
+
+        this.init();
     }
 
 

@@ -38,9 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     titleButton.addEventListener('click', () => {
-        // titleArea.classList.remove('hidden');
-        // gameContainer.classList.add('hidden');
-        // menuArea.classList.add('hidden');
         location.reload();
     });
 
@@ -58,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function puzzleInit()
     {
         puzzle = new Puzzle(rows, cols, draggingDistance, matchCount, targetScore, timeLimit);
-        puzzle.init();
     }
 
     function customEventListener()
