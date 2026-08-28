@@ -34,7 +34,7 @@ export default class ModelController
     {
         // 3D空間を作成
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x000000);   // 背景の色
+        // this.scene.background = new THREE.Color(0x000000);   // 背景の色
     }
 
     initCamera()
@@ -47,7 +47,7 @@ export default class ModelController
     initRenderer()
     {
         // レンダラー (画面に描画する仕組み) を作成
-        this.renderer = new THREE.WebGLRenderer({anialias: true});   // ギザギザを滑らかに
+        this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});   // ギザギザを滑らかに
         this.renderer.setSize(this.width, this.height);
 
         // HTMLに要素追加
@@ -101,7 +101,6 @@ export default class ModelController
         // meshの中身が空ではないかつシェイプキーを持っていれば
         if(mesh && mesh.morphTargetInfluences)
         {    
-            console.log(mesh.morphTargetInfluences.length)
             // シェイプキーをリセット
             for(let i = 0; i < mesh.morphTargetInfluences.length; i++)
             {
