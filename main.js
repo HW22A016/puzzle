@@ -17,9 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = 6;
     const cols = 6;
     const draggingDistance = 30;
-    const matchCount = 3
-    const targetScore = 3000
+    const matchCount = 3;
+    const targetScore = 6000;
     const timeLimit = 100;
+
+    customEventListener();
 
     modelController = new ModelController('model-area', './glb/stage.glb',targetScore);
     startButton.addEventListener('click', () => {
@@ -34,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             window.dispatchEvent(new Event('resize'));
         }, 50);
-        customEventListener();
     });
 
     titleButton.addEventListener('click', () => {
@@ -54,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function puzzleInit()
     {
+        const targetScoreElement = document.getElementById("target-score");
+        targetScoreElement.textContent = targetScore;
         puzzle = new Puzzle(rows, cols, draggingDistance, matchCount, targetScore, timeLimit);
     }
 
@@ -69,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const combo = customEvent.detail.combo;
             const comboElement = document.getElementById("combo");
             comboElement.textContent = combo;
+        });
+
+        window.addEventListener('sendTime', (customEvent) => {
+            const time = customEvent.detail.time;
+            const timeElement = document.getElementById("timer");
+            timeElement.textContent = time;
         });
     }
 });

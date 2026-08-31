@@ -42,6 +42,10 @@ class Puzzle
         this.isDragging = false;
 
         this.init();
+
+        this.sendScore();
+        this.sendCombo();
+        this.sendTime();
     }
 
 
@@ -49,13 +53,7 @@ class Puzzle
     init()
     {
         const boardElement = document.getElementById('game-board');
-
-        const targetScoreElement = document.getElementById("target-score");
-        targetScoreElement.textContent = this.targetScore;
         
-        this.sendScore();
-        this.sendCombo();
-
         for(let r = 0; r < this.ROWS; r++)
         {
             this.board[r] = [];
@@ -102,18 +100,14 @@ class Puzzle
     // タイルを作成
     createTile(boardElement, r, c, colorId)
     {
-        // const cell = document.createElement('div');
         const tile = document.createElement('div');
 
         // class="tile"を付与
-        // cell.classList.add('effectBackground');
         tile.classList.add('tile');
 
         // id="tile-r-c"を付与
-        // cell.id = `cell-${r}-${c}`;
         tile.id = `tile-${r}-${c}`;
 
-        // cell.style.backgroundColor = '#FFFFFF';
         tile.style.backgroundColor = this.COLORS[colorId - 1];
 
         // マウス用のイベント
@@ -122,9 +116,6 @@ class Puzzle
         // タッチ操作用のイベント
         tile.addEventListener('touchstart', (e) => this.dragStart(e, r, c));
         
-        // cell.appendChild(tile);
-        // game-boardの子供の末尾にtileを追加
-        // boardElement.appendChild(cell);
         boardElement.appendChild(tile);
     }
 
@@ -479,17 +470,21 @@ class Puzzle
         window.dispatchEvent(event);
     }
 
+    sendTime()
+    {
+        const event = new CustomEvent('sendTime', { detail: {time:this.timer}})
+        window.dispatchEvent(event);   
+    }
+
     // 制限時間をカウントダウン
     timerCount()
     {
         this.timer = this.timeLimit;
-        const timerElement = document.getElementById("timer");
-        timerElement.textContent = this.timer;
 
         // 1秒ごとにカウントダウン
         this.timerInterval = setInterval(() => {
             this.timer--;
-            timerElement.textContent = this.timer;
+            this.sendTime();
             this.hasComboTime();
             this.jugeTimeOver();
         }, 1000);
