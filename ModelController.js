@@ -24,7 +24,7 @@ export default class ModelController
         this.initScene();
         this.initCamera();
         this.initRenderer();
-        this.initControls();
+        // this.initControls();
         this.initLights();
 
         this.initAnimation();
@@ -46,8 +46,9 @@ export default class ModelController
     initCamera()
     {
         // カメラを作成 (視野角, 画面の比率, クリップ手前, クリップ奥)
-        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000)
-        this.camera.position.set(0, 1.8, 1.8);   // カメラの初期位置 (少し上、少し後ろに引く)
+        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
+        this.camera.position.set(-0.4, 1, 1.2);   // カメラの初期位置 (少し上、少し後ろに引く)
+        this.camera.lookAt(-0.4, 0.5, 0);
     }
 
     initRenderer()
@@ -63,7 +64,7 @@ export default class ModelController
     initControls()
     {
         // マウス操作の設定
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);   // 独自の注意点を持ってるからカメラの角度取られる
     }
 
     initLights()
@@ -218,7 +219,7 @@ export default class ModelController
         requestAnimationFrame((t) => this.animate(t));
 
         // マウス操作の更新
-        this.controls.update();
+        // this.controls.update();
 
         // タイマーに最新の時間をセット
         this.timer.update(timestamp);
@@ -258,15 +259,23 @@ export default class ModelController
     {
         window.addEventListener('sendScore', (customEvent) => {
             const score = customEvent.detail.score;
-            const targetIndex = Math.floor(score / this.partScore);
-            // スコアでりんごが増えるかどうか計算
-            this.shapeKeysController(this.stage, targetIndex);
+            if(score == 0)
+            {
+                this.animationNum = 0;
+                this.shapeKeysController(this.stage, score);
+            }
+            else
+            {
+                const targetIndex = Math.floor(score / this.partScore);
+                // スコアでりんごが増えるかどうか計算
+                this.shapeKeysController(this.stage, targetIndex);
 
-            if(this.animationNum < targetIndex)
-            {    
-                // アニメーションを再生
-                this.setAnimation(this.animations, 0);
-                this.animationNum = targetIndex;
+                if(this.animationNum < targetIndex)
+                {    
+                    // アニメーションを再生
+                    this.setAnimation(this.animations, 0);
+                    this.animationNum = targetIndex;
+                }
             }
         });
     }
