@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+import { Timer } from 'three/addons/misc/Timer.js';
+
 export default class ModelController
 {
     constructor(elementId, modelPath = './glb/stage.glb', targetScore, onLoaded = null)
@@ -17,11 +19,15 @@ export default class ModelController
 
         this.onLoaded = onLoaded;
 
+        this.animationNum = 0;
+
         this.initScene();
         this.initCamera();
         this.initRenderer();
         this.initControls();
         this.initLights();
+
+        this.initAnimation();
 
         this.loadModel();
 
@@ -41,7 +47,7 @@ export default class ModelController
     {
         // カメラを作成 (視野角, 画面の比率, クリップ手前, クリップ奥)
         this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000)
-        this.camera.position.set(0, 0.7, 0.2);   // カメラの初期位置 (少し上、少し後ろに引く)
+        this.camera.position.set(0, 1.8, 1.8);   // カメラの初期位置 (少し上、少し後ろに引く)
     }
 
     initRenderer()
@@ -70,6 +76,36 @@ export default class ModelController
         this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         this.directionalLight.position.set(5, 10, 7);
         this.scene.add(this.directionalLight);
+    }
+
+    initAnimation()
+    {
+        this.timer = new Timer();
+
+        this.mixer = null;
+    }
+
+    setMaterials(model)
+    {
+        // 3Dモデルの子要素を順番にチェック
+        model.traverse((child) => {
+            // meshを持っているかつmaterialを持っているか
+            if(child.isMesh && child.material)
+            {
+                // materialをリストで取得
+                const materials = Array.isArray(child.material) ? child.material : [child.material];    // 配列ならそのまま配列のマテリアルを取得 配列になっていないならマテリアルを配列に変換
+
+                materials.forEach((material) => {
+                    // マテリアルがテクスチャ画像を持っているかつ透過ようの画像を持っているか
+                    if(material.map || material.alphaMap)
+                    {
+                        material.transparent = true;    // 透過をON
+                        material.alphaTest = 0.5;       // 透過度が50%以下のピクセルは透過
+                        material.needsUpdate = true;    //マテリアルを更新
+                    }
+                });
+            }
+        });
     }
 
     // シェイプキーがついているmeshを探す関数
@@ -118,20 +154,53 @@ export default class ModelController
         }
     }
 
+    setAnimationModel(model, animations)
+    {
+        // アニメーションを配列でデータをセットする
+        if(animations && 0 < animations.length)
+        {
+            this.mixer = new THREE.AnimationMixer(model);
+
+            this.mixer.addEventListener('finished', (customEvent) => {
+                
+            })
+        }
+    }
+
+    setAnimation(animations, index)
+    {
+        // mixerが作られていない　または　アニメーションデータが存在しない　または　指定番号のアニメーションが存在しないなら
+        if(!this.mixer || !animations || !animations[index])
+        {
+            return;
+        }
+
+        const action = this.mixer.clipAction(animations[index]);
+        action.reset();
+        action.setLoop(THREE.LoopOnce);
+        action.play();
+    }
+
     loadModel()
     {
         const loader = new GLTFLoader();
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;
+
+            this.setMaterials(this.model);
+
             this.scene.add(this.model);
             console.log('モデルが読み込まれました.');
 
-            this.basket = this.findMesh(this.model);
-            this.shapeKeysController(this.basket, 0);
-            this.showShapeKeyName(this.basket);
+            this.stage = this.findMesh(this.model);
+            this.shapeKeysController(this.stage, 0);
+            // this.showShapeKeyName(this.stage);
 
-            this.splitScore(this.basket);
+            this.animations = gltf.animations;
+            this.setAnimationModel(this.model, this.animations);
+
+            this.splitScore(this.stage);
         }, undefined, (error) => {
             console.error('モデルの読み込み中にエラーが発生しました:', error);
         });
@@ -143,12 +212,25 @@ export default class ModelController
     }
     
     // 定期的に画面を更新するループ処理 (必須)
-    animate()
+    animate(timestamp = 0)
     {
-        requestAnimationFrame(() => this.animate());
+        // ブラウザの画面更新タイミングでanimateを実行
+        requestAnimationFrame((t) => this.animate(t));
 
         // マウス操作の更新
         this.controls.update();
+
+        // タイマーに最新の時間をセット
+        this.timer.update(timestamp);
+        // 前回のフレームからの経過時間を取得
+        const delta = this.timer.getDelta();
+
+        // ミキサーが存在すれば、アニメーションの時間を進める
+        if(this.mixer)
+        {
+            // delta分だけアニメーションをコマ送りする
+            this.mixer.update(delta);
+        }
 
         // 画面を描画
         this.renderer.render(this.scene, this.camera);
@@ -176,8 +258,16 @@ export default class ModelController
     {
         window.addEventListener('sendScore', (customEvent) => {
             const score = customEvent.detail.score;
+            const targetIndex = Math.floor(score / this.partScore);
             // スコアでりんごが増えるかどうか計算
-            this.shapeKeysController(this.basket, Math.floor(score / this.partScore));
+            this.shapeKeysController(this.stage, targetIndex);
+
+            if(this.animationNum < targetIndex)
+            {    
+                // アニメーションを再生
+                this.setAnimation(this.animations, 0);
+                this.animationNum = targetIndex;
+            }
         });
     }
 }

@@ -20,10 +20,22 @@
     gap: 30px;
 }
 
+#model-area {
+    width: 400px;
+    height: 400px;
+    /* background-color: blue; */
+}
+
 @media (max-width: 550px) {
     #game-container {
         flex-direction: column;
         align-items: center;
+    }
+
+    #model-area {
+        width: 200px;
+        height: 200px;
+        /* background-color: blue; */
     }
 }
 
@@ -37,12 +49,6 @@
     grid-template-rows: repeat(6, 60px);
     gap: 4px;
     touch-action: none;
-}
-
-#model-area {
-    width: 200px;
-    height: 200px;
-    /* background-color: blue; */
 }
 
 #result {
